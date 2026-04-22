@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Memories With Dad ❤️</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Continuous Floating Hearts -->
+<div class="hearts-container" id="heartsContainer"></div>
+
+<!-- Dark Mode -->
+<button class="darkmode-btn" id="darkmodeBtn" title="Dark Mode">🌙</button>
+
+<!-- ====== GATE ====== -->
+<div class="screen active" id="screen-gate">
+  <div class="gate-bg-orb orb1"></div>
+  <div class="gate-bg-orb orb2"></div>
+  <div class="gate-bg-orb orb3"></div>
+  <div class="gate-container" id="gateContainer">
+    <div class="gate-logo">
+      <div class="heart-pulse">❤️</div>
+      <h1>Our Memories With Dad</h1>
+      <p class="gate-subtitle">ذكرياتنا مع بابا</p>
+    </div>
+    <div class="gate-form">
+      <div class="input-group">
+        <input type="password" id="mainPassword" placeholder="Enter password..." class="main-input" autocomplete="off">
+        <button onclick="checkMainPassword()" class="btn-primary">Enter ❤️</button>
+      </div>
+      <p class="hint-text">This place belongs to our family only 💙</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== FAMILY MEMBERS ====== -->
+<div class="screen" id="screen-family">
+  <div class="family-header">
+    <button class="back-btn" onclick="goTo('screen-gate')">←</button>
+    <div>
+      <h2>Welcome to Our Memory Book ❤️</h2>
+      <p>Choose your name to enter your space</p>
+    </div>
+  </div>
+  <div class="members-grid">
+    <div class="member-card" onclick="selectMember('Yoma','Yoma','الرقاصه','💃')">
+      <div class="member-avatar">💃</div>
+      <h3>Yoma</h3>
+      <div class="member-glow"></div>
+    </div>
+    <div class="member-card" onclick="selectMember('Janjan','Janjan','السيده','🐼')">
+      <div class="member-avatar">🐼</div>
+      <h3>Janjan</h3>
+      <div class="member-glow"></div>
+    </div>
+    <div class="member-card" onclick="selectMember('Mo','Mo','الهندسه','⚙️')">
+      <div class="member-avatar">⚙️</div>
+      <h3>Mo</h3>
+      <div class="member-glow"></div>
+    </div>
+    <div class="member-card" onclick="selectMember('Domdom','Domdom','اخر العنقود','🍇')">
+      <div class="member-avatar">🍇</div>
+      <h3>Domdom</h3>
+      <div class="member-glow"></div>
+    </div>
+    <div class="member-card" onclick="selectMember('Fozda2a','Fozda2a','الحته','🌟')">
+      <div class="member-avatar">🌟</div>
+      <h3>Fozda2a</h3>
+      <div class="member-glow"></div>
+    </div>
+    <div class="member-card dad-special-card" onclick="selectMember('Dad','Dad Photos','FAMILY2026','👨‍👧‍👦')">
+      <div class="member-avatar">👨‍👧‍👦</div>
+      <h3>Dad's Photos</h3>
+      <div class="member-glow dad-glow"></div>
+    </div>
+  </div>
+  <div class="dad-message-link" onclick="goTo('screen-message')">
+    <span>💌 Message to Dad</span>
+  </div>
+</div>
+
+<!-- ====== MEMBER LOGIN ====== -->
+<div class="screen" id="screen-member-login">
+  <div class="member-login-container">
+    <button class="back-btn" onclick="goTo('screen-family')">←</button>
+    <div class="member-login-avatar" id="loginAvatar">💃</div>
+    <h2 id="loginName">Yoma</h2>
+    <p class="login-subtitle">Enter your secret password</p>
+    <div class="input-group">
+      <input type="password" id="memberPassword" placeholder="Password..." class="main-input" autocomplete="off" onkeyup="if(event.key==='Enter')checkMemberPassword()">
+      <button onclick="checkMemberPassword()" class="btn-primary">Enter ❤️</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MEMORIES PAGE ====== -->
+<div class="screen" id="screen-memories">
+  <div class="memories-header">
+    <button class="back-btn" onclick="goTo('screen-family')">←</button>
+    <div class="header-info">
+      <span class="header-avatar" id="memAvatar">💃</span>
+      <div>
+        <h2 id="memName">Yoma</h2>
+        <p id="memCount">0 memories</p>
+      </div>
+    </div>
+    <button class="add-btn hidden" id="addMemoryBtn" onclick="openAddModal()">+ Add Memory</button>
+  </div>
+  <div class="memories-grid" id="memoriesGrid">
+    <div class="loading-memories"><div class="spinner"></div><p>Loading memories...</p></div>
+  </div>
+</div>
+
+<!-- ====== DAD PHOTOS PAGE ====== -->
+<div class="screen" id="screen-dad">
+  <div class="memories-header dad-header">
+    <button class="back-btn" onclick="goTo('screen-family')">←</button>
+    <div class="header-info">
+      <span class="header-avatar">👨‍👧‍👦</span>
+      <div>
+        <h2>Dad's Photos</h2>
+        <p id="dadPhotoCount">0 photos</p>
+      </div>
+    </div>
+    <button class="add-btn dad-add-btn" id="addDadBtn" onclick="openDadModal()">+ Add Photo</button>
+  </div>
+  <div class="memories-grid" id="dadGrid">
+    <div class="loading-memories"><div class="spinner"></div><p>Loading...</p></div>
+  </div>
+</div>
+
+<!-- ====== MESSAGE TO DAD ====== -->
+<div class="screen" id="screen-message">
+  <div class="message-header">
+    <button class="back-btn" onclick="goTo('screen-family')">←</button>
+    <h2>💌 Message to Dad</h2>
+  </div>
+  <div class="message-content">
+    <div class="message-card">
+      <div class="message-envelope">💌</div>
+      <h3>To the dearest person in our hearts</h3>
+      <div class="message-text">
+        <p>Dear Dad...</p>
+        <p>Every memory with you is a priceless treasure. Every moment we spent together is carved in our hearts forever.</p>
+        <p>We created this place with all our love, to be a witness to the most beautiful memories that brought us together.</p>
+        <p>We love you Dad ❤️</p>
+        <p class="message-signature">— Your Family</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== ADD MEMORY MODAL ====== -->
+<div class="modal-overlay hidden" id="addModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAddModal()">✕</button>
+    <h3>✨ Add New Memory</h3>
+    <div class="upload-area" onclick="document.getElementById('imgInput').click()">
+      <input type="file" id="imgInput" accept="image/*" onchange="previewImg(event,'imgPreview','imgPH')" hidden>
+      <div id="imgPH" class="upload-placeholder">
+        <div class="upload-icon">📷</div>
+        <p>Tap to choose a photo</p>
+        <span>JPG · PNG · WEBP</span>
+      </div>
+      <img id="imgPreview" class="hidden preview-img" alt="preview">
+    </div>
+    <textarea id="captionInput" placeholder="Write a caption for this memory... 💭" class="caption-input" rows="3"></textarea>
+    <button onclick="saveMemory()" class="btn-primary btn-save" id="saveBtn">Save Memory ❤️</button>
+  </div>
+</div>
+
+<!-- ====== ADD DAD PHOTO MODAL ====== -->
+<div class="modal-overlay hidden" id="dadModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeDadModal()">✕</button>
+    <h3>📸 Add Dad's Photo</h3>
+    <div class="upload-area" onclick="document.getElementById('dadImgInput').click()">
+      <input type="file" id="dadImgInput" accept="image/*" onchange="previewImg(event,'dadImgPreview','dadImgPH')" hidden>
+      <div id="dadImgPH" class="upload-placeholder">
+        <div class="upload-icon">👨‍👧‍👦</div>
+        <p>Tap to choose a photo of Dad</p>
+        <span>JPG · PNG · WEBP</span>
+      </div>
+      <img id="dadImgPreview" class="hidden preview-img" alt="preview">
+    </div>
+    <textarea id="dadCaptionInput" placeholder="Write a caption... 💭" class="caption-input" rows="3"></textarea>
+    <button onclick="saveDadPhoto()" class="btn-primary btn-save" id="dadSaveBtn">Save ❤️</button>
+  </div>
+</div>
+
+<!-- ====== LIGHTBOX ====== -->
+<div class="lightbox hidden" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-nav prev" onclick="navigateLight(-1)">‹</button>
+  <button class="lightbox-nav next" onclick="navigateLight(1)">›</button>
+  <div class="lightbox-inner">
+    <img id="lightboxImg" src="" alt="">
+    <p id="lightboxCaption"></p>
+    <span id="lightboxDate"></span>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast hidden" id="toast"></div>
+
+<!-- ====== MUSIC PLAYER ====== -->
+<div class="music-player" id="musicPlayer">
+  <div class="player-top">
+    <div class="player-cassette">
+      <div class="cassette-body">
+        <div class="cassette-reel reel-l" id="reelL"></div>
+        <div class="cassette-label">
+          <span class="song-title-txt">أغنية عيد ميلادك 🎂</span>
+          <span class="song-sub-txt">Happy Birthday Song</span>
+        </div>
+        <div class="cassette-reel reel-r" id="reelR"></div>
+      </div>
+      <div class="tape-track"><div class="tape-progress" id="tapeProg"></div></div>
+    </div>
+  </div>
+  <div class="player-time-row">
+    <span id="curTime">0:00</span>
+    <input type="range" id="progBar" value="0" min="0" max="100" step="0.1" oninput="seekTo(this.value)" class="prog-slider">
+    <span id="totTime">0:00</span>
+  </div>
+  <div class="player-btns">
+    <button class="ctrl-btn" onclick="seekBack()">⏮</button>
+    <button class="ctrl-btn play-main" id="playBtn" onclick="togglePlay()">▶</button>
+    <button class="ctrl-btn" onclick="seekFwd()">⏭</button>
+  </div>
+</div>
+
+<!-- ====== FIREBASE + LOGIC ====== -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+// ── FIREBASE CONFIG ── replace with real values ──────────────
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+let db, storage, useFirebase = false;
+try {
+  if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+    const fbApp = initializeApp(firebaseConfig);
+    db = getFirestore(fbApp);
+    storage = getStorage(fbApp);
+    useFirebase = true;
+  }
+} catch(e) {}
+
+// ── LOCALSTORAGE (GitHub Pages fallback) ─────────────────────
+const lsLoad = m => { try { return JSON.parse(localStorage.getItem('mem_'+m))||[]; } catch { return []; } };
+const lsSave = (m,a) => localStorage.setItem('mem_'+m, JSON.stringify(a));
+const toB64  = f => new Promise((res,rej) => { const r=new FileReader(); r.onload=e=>res(e.target.result); r.onerror=rej; r.readAsDataURL(f); });
+
+// ── STATE ─────────────────────────────────────────────────────
+window.currentMember = null;
+window.memories      = [];
+window.lightboxIndex = 0;
+window.secretBuf     = '';
+const PWDS = { Yoma:'الرقاصه', Janjan:'السيده', Mo:'الهندسه', Domdom:'اخر العنقود', Fozda2a:'الحته', Dad:'FAMILY2026' };
+
+// ── NAVIGATION ────────────────────────────────────────────────
+window.goTo = id => { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); };
+
+// ── MAIN PASSWORD ─────────────────────────────────────────────
+window.checkMainPassword = () => {
+  const v = document.getElementById('mainPassword').value.trim();
+  if (v==='Family'||v==='family') { goTo('screen-family'); document.getElementById('mainPassword').value=''; burstHearts(20); }
+  else { showToast('❌ Wrong password'); shakeEl(document.getElementById('mainPassword')); }
+};
+document.getElementById('mainPassword').addEventListener('keyup', e => { if(e.key==='Enter') checkMainPassword(); });
+
+// ── SELECT MEMBER ─────────────────────────────────────────────
+window.selectMember = (id, nameEn, pwd, icon) => {
+  window.currentMember = id;
+  document.getElementById('loginAvatar').textContent = icon;
+  document.getElementById('loginName').textContent   = nameEn;
+  document.getElementById('memberPassword').value    = '';
+  goTo('screen-member-login');
+};
+
+window.checkMemberPassword = () => {
+  const v = document.getElementById('memberPassword').value.trim();
+  if (v === PWDS[window.currentMember]) {
+    document.getElementById('memberPassword').value = '';
+    burstHearts(10);
+    if (window.currentMember === 'Dad') {
+      document.getElementById('addDadBtn').classList.remove('hidden');
+      loadDadPhotos();
+      goTo('screen-dad');
+    } else {
+      document.getElementById('memAvatar').textContent = document.getElementById('loginAvatar').textContent;
+      document.getElementById('memName').textContent   = window.currentMember;
+      document.getElementById('addMemoryBtn').classList.add('hidden');
+      loadMemories();
+      goTo('screen-memories');
+    }
+  } else { showToast('❌ Wrong password'); shakeEl(document.getElementById('memberPassword')); }
+};
+
+// ── LOAD MEMORIES ─────────────────────────────────────────────
+async function loadMemories() {
+  const grid = document.getElementById('memoriesGrid');
+  grid.innerHTML = `<div class="loading-memories"><div class="spinner"></div><p>Loading memories...</p></div>`;
+  let mems = [];
+  try {
+    if (useFirebase) {
+      const snap = await getDocs(query(collection(db,'members',window.currentMember,'memories'), orderBy('timestamp','desc')));
+      snap.forEach(d => { const dd=d.data(); mems.push({imageURL:dd.imageURL, caption:dd.caption, date:dd.timestamp?.toDate?.()?.toLocaleDateString('en-GB')||''}); });
+    } else { mems = lsLoad(window.currentMember); }
+  } catch(e) { mems = lsLoad(window.currentMember); }
+  window.memories = mems;
+  renderGrid(mems, grid, 'memCount', 'memories');
+}
+
+async function loadDadPhotos() {
+  const grid = document.getElementById('dadGrid');
+  grid.innerHTML = `<div class="loading-memories"><div class="spinner"></div><p>Loading...</p></div>`;
+  let mems = [];
+  try {
+    if (useFirebase) {
+      const snap = await getDocs(query(collection(db,'members','Dad','memories'), orderBy('timestamp','desc')));
+      snap.forEach(d => { const dd=d.data(); mems.push({imageURL:dd.imageURL, caption:dd.caption, date:''}); });
+    } else { mems = lsLoad('Dad'); }
+  } catch(e) { mems = lsLoad('Dad'); }
+  window.memories = mems;
+  renderGrid(mems, grid, 'dadPhotoCount', 'photos');
+}
+
+function renderGrid(mems, grid, countId, unit) {
+  document.getElementById(countId).textContent = mems.length + ' ' + unit;
+  grid.innerHTML = '';
+  if (!mems.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">📷</div><p>No memories yet</p><span>Type FAMILY2026 to unlock adding</span></div>`;
+    return;
+  }
+  mems.forEach((mem,i) => {
+    const c = document.createElement('div');
+    c.className = 'memory-card';
+    c.style.animationDelay = (i*0.07)+'s';
+    c.innerHTML = `
+      <div class="memory-img-wrap">
+        <img src="${mem.imageURL}" alt="${mem.caption||''}" loading="lazy" onload="this.classList.add('loaded')">
+        <div class="memory-overlay"><span>🔍</span></div>
+      </div>
+      ${mem.caption?`<div class="memory-caption">${mem.caption}</div>`:''}
+      ${mem.date?`<div class="memory-date">${mem.date}</div>`:''}
+    `;
+    c.onclick = () => openLightbox(i);
+    grid.appendChild(c);
+  });
+}
+
+// ── SAVE IMAGE ────────────────────────────────────────────────
+async function saveImg(member, file, caption) {
+  if (useFirebase) {
+    const sRef = ref(storage, `members/${member}/${Date.now()}_${file.name}`);
+    await uploadBytes(sRef, file);
+    const url = await getDownloadURL(sRef);
+    await addDoc(collection(db,'members',member,'memories'), { imageURL:url, caption, timestamp:serverTimestamp() });
+  } else {
+    const b64 = await toB64(file);
+    const arr = lsLoad(member);
+    arr.unshift({ imageURL:b64, caption, date:new Date().toLocaleDateString('en-GB') });
+    lsSave(member, arr);
+  }
+}
+
+// ── MODALS ────────────────────────────────────────────────────
+window.openAddModal  = () => { openModal('addModal','imgInput','imgPreview','imgPH','captionInput'); };
+window.closeAddModal = () => closeModal('addModal');
+window.openDadModal  = () => { openModal('dadModal','dadImgInput','dadImgPreview','dadImgPH','dadCaptionInput'); };
+window.closeDadModal = () => closeModal('dadModal');
+
+function openModal(modalId, inputId, previewId, phId, captionId) {
+  document.getElementById(captionId).value = '';
+  document.getElementById(previewId).classList.add('hidden');
+  document.getElementById(phId).style.display = 'flex';
+  document.getElementById(inputId).value = '';
+  document.getElementById(modalId).classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.body.style.overflow=''; }
+
+window.previewImg = (e, previewId, phId) => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    document.getElementById(previewId).src = ev.target.result;
+    document.getElementById(previewId).classList.remove('hidden');
+    document.getElementById(phId).style.display = 'none';
+  };
+  r.readAsDataURL(f);
+};
+
+let saving = false;
+window.saveMemory = async () => {
+  if (saving) return;
+  const file = document.getElementById('imgInput').files[0];
+  const cap  = document.getElementById('captionInput').value.trim();
+  if (!file) { showToast('⚠️ Choose a photo first'); return; }
+  saving = true; const btn=document.getElementById('saveBtn');
+  btn.textContent='Saving... ⏳'; btn.disabled=true;
+  try { await saveImg(window.currentMember,file,cap); closeAddModal(); loadMemories(); showToast('✅ Memory saved!'); burstHearts(12); }
+  catch(e) { showToast('❌ Error, try again'); }
+  finally { saving=false; btn.textContent='Save Memory ❤️'; btn.disabled=false; }
+};
+
+let savingDad = false;
+window.saveDadPhoto = async () => {
+  if (savingDad) return;
+  const file = document.getElementById('dadImgInput').files[0];
+  const cap  = document.getElementById('dadCaptionInput').value.trim();
+  if (!file) { showToast('⚠️ Choose a photo first'); return; }
+  savingDad=true; const btn=document.getElementById('dadSaveBtn');
+  btn.textContent='Saving... ⏳'; btn.disabled=true;
+  try { await saveImg('Dad',file,cap); closeDadModal(); loadDadPhotos(); showToast("✅ Dad's photo saved!"); burstHearts(12); }
+  catch(e) { showToast('❌ Error, try again'); }
+  finally { savingDad=false; btn.textContent='Save ❤️'; btn.disabled=false; }
+};
+
+['addModal','dadModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => { if(e.target.id===id) closeModal(id); });
+});
+
+// ── LIGHTBOX ─────────────────────────────────────────────────
+window.openLightbox = i => {
+  window.lightboxIndex=i; updateLB();
+  document.getElementById('lightbox').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+};
+function updateLB() {
+  const m=window.memories[window.lightboxIndex]; if(!m) return;
+  const img=document.getElementById('lightboxImg');
+  img.style.opacity=0; img.src=m.imageURL; img.onload=()=>img.style.opacity=1;
+  document.getElementById('lightboxCaption').textContent=m.caption||'';
+  document.getElementById('lightboxDate').textContent=m.date||'';
+}
+window.closeLightbox  = () => { document.getElementById('lightbox').classList.add('hidden'); document.body.style.overflow=''; };
+window.navigateLight  = d  => { window.lightboxIndex=(window.lightboxIndex+d+window.memories.length)%window.memories.length; updateLB(); };
+let lbTX=0;
+document.getElementById('lightbox').addEventListener('touchstart', e=>lbTX=e.touches[0].clientX);
+document.getElementById('lightbox').addEventListener('touchend',   e=>{ const d=lbTX-e.changedTouches[0].clientX; if(Math.abs(d)>50) navigateLight(d>0?1:-1); });
+document.addEventListener('keydown', e=>{
+  if(!document.getElementById('lightbox').classList.contains('hidden')){
+    if(e.key==='ArrowLeft') navigateLight(1); if(e.key==='ArrowRight') navigateLight(-1); if(e.key==='Escape') closeLightbox();
+  }
+});
+
+// ── SECRET CODE ───────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+  window.secretBuf += e.key.toUpperCase();
+  if(window.secretBuf.length>10) window.secretBuf=window.secretBuf.slice(-10);
+  if(window.secretBuf==='FAMILY2026') {
+    if(document.getElementById('screen-memories').classList.contains('active'))
+      document.getElementById('addMemoryBtn').classList.remove('hidden');
+    showToast('🔓 Admin mode unlocked!'); burstHearts(25); window.secretBuf='';
+  }
+});
+
+// ── HEARTS ────────────────────────────────────────────────────
+const HH = ['❤️','💙','💕','💖','💗','🩷','🩵','💝'];
+function spawnHeart(big=false){
+  const h=document.createElement('div'); h.className='floating-heart';
+  h.textContent=HH[Math.floor(Math.random()*HH.length)];
+  h.style.left=(Math.random()*100)+'vw';
+  h.style.animationDuration=(big?4+Math.random()*3:5+Math.random()*5)+'s';
+  h.style.fontSize=(big?16+Math.random()*20:9+Math.random()*13)+'px';
+  h.style.animationDelay=(Math.random()*1.2)+'s';
+  document.getElementById('heartsContainer').appendChild(h);
+  setTimeout(()=>h.remove(),11000);
+}
+window.burstHearts=n=>{ for(let i=0;i<n;i++) setTimeout(()=>spawnHeart(true),i*100); };
+setInterval(()=>spawnHeart(false), 1600); // always running
+
+// ── TOAST ─────────────────────────────────────────────────────
+window.showToast = msg => {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.remove('hidden'); t.classList.add('show');
+  setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.classList.add('hidden'),400); },3000);
+};
+window.shakeEl = el => { el.classList.add('shake'); setTimeout(()=>el.classList.remove('shake'),500); };
+
+// ── DARK MODE ─────────────────────────────────────────────────
+document.getElementById('darkmodeBtn').onclick = () => {
+  document.body.classList.toggle('dark');
+  document.getElementById('darkmodeBtn').textContent = document.body.classList.contains('dark')?'☀️':'🌙';
+};
+
+// ── MUSIC PLAYER ─────────────────────────────────────────────
+const aud = new Audio('birthday.mp3');
+aud.loop = false;
+let isPlaying = false;
+const playBtn  = document.getElementById('playBtn');
+const progBar  = document.getElementById('progBar');
+const tapeProg = document.getElementById('tapeProg');
+const reelL    = document.getElementById('reelL');
+const reelR    = document.getElementById('reelR');
+
+const fmt = s => { const m=Math.floor(s/60),ss=Math.floor(s%60).toString().padStart(2,'0'); return `${m}:${ss}`; };
+
+aud.addEventListener('loadedmetadata', ()=>{ document.getElementById('totTime').textContent=fmt(aud.duration); });
+aud.addEventListener('timeupdate', ()=>{
+  if(!aud.duration) return;
+  const p=(aud.currentTime/aud.duration)*100;
+  progBar.value=p; tapeProg.style.width=p+'%';
+  document.getElementById('curTime').textContent=fmt(aud.currentTime);
+});
+aud.addEventListener('ended', ()=>{ isPlaying=false; playBtn.textContent='▶'; stopReels(); });
+
+function stopReels(){ reelL.style.animationPlayState=reelR.style.animationPlayState='paused'; }
+function startReels(){ reelL.style.animationPlayState=reelR.style.animationPlayState='running'; }
+
+window.togglePlay = ()=>{
+  if(isPlaying){ aud.pause(); playBtn.textContent='▶'; stopReels(); }
+  else { aud.play().catch(()=>{}); playBtn.textContent='⏸'; startReels(); }
+  isPlaying=!isPlaying;
+};
+window.seekTo  = v=>{ if(aud.duration) aud.currentTime=(v/100)*aud.duration; };
+window.seekBack= ()=>{ aud.currentTime=Math.max(0,aud.currentTime-10); };
+window.seekFwd = ()=>{ aud.currentTime=Math.min(aud.duration||0,aud.currentTime+10); };
+
+// ── INIT ─────────────────────────────────────────────────────
+window.addEventListener('load', ()=>{ setTimeout(()=>document.getElementById('gateContainer').classList.add('visible'),120); });
+</script>
+</body>
+</html>
