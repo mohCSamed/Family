@@ -643,7 +643,7 @@ async function loadDadPhotos() {
 
 function renderGrid(mems, grid, countId, unit) {
   const favs = window.currentMember ? getFavs(window.currentMember) : [];
-  const canDelete = window.currentMember === 'Dad' || window.isAdminUnlocked;
+  const canDelete = true;
   let displayMems = mems;
   if (window.showingFavOnly) displayMems = mems.filter(m => favs.includes(m.imageURL));
   document.getElementById(countId).textContent = displayMems.length + ' ' + unit;
@@ -680,10 +680,6 @@ function renderGrid(mems, grid, countId, unit) {
 
 window.deleteMemory = async (e, idx) => {
   e.stopPropagation();
-  if (!(window.currentMember === 'Dad' || window.isAdminUnlocked)) {
-    showToast('🔒 الحذف للأدمن فقط');
-    return;
-  }
   const target = window.memories[idx];
   if (!target) return;
   if (!confirm('متأكد إنك عايز تحذف الذكرى دي؟')) return;
@@ -998,6 +994,7 @@ function applyDarkMode(isDark) {
 }
 function activateAdminMode() {
   window.isAdminUnlocked = true;
+  document.body.classList.add('admin-unlocked');
   if (document.getElementById('screen-memories').classList.contains('active')) {
     document.getElementById('addMemoryBtn').classList.remove('hidden');
     renderGrid(window.memories, document.getElementById('memoriesGrid'), 'memCount', 'ذكريات');

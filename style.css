@@ -380,7 +380,7 @@ button{font-family:var(--font);cursor:pointer}
 .delete-star{
   position:absolute;top:6px;right:6px;z-index:10;background:rgba(220,40,70,.75);
   border:none;border-radius:50%;width:32px;height:32px;font-size:.85rem;color:#fff;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:.95;
   transition:all .28s ease;
 }
 .memory-card:hover .delete-star{opacity:1}
