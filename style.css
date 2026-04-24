@@ -377,6 +377,14 @@ button{font-family:var(--font);cursor:pointer}
 .memory-card:hover .fav-star{opacity:1}
 .fav-star.starred{filter:grayscale(0);opacity:1;background:rgba(0,0,0,.52)}
 .fav-star:hover{transform:scale(1.25);filter:grayscale(0)}
+.delete-star{
+  position:absolute;top:6px;right:6px;z-index:10;background:rgba(220,40,70,.75);
+  border:none;border-radius:50%;width:32px;height:32px;font-size:.85rem;color:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;
+  transition:all .28s ease;
+}
+.memory-card:hover .delete-star{opacity:1}
+.delete-star:hover{transform:scale(1.15);background:rgba(220,40,70,.92)}
 .video-play-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;font-size:1.1rem;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.3)}
 .loading-memories{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;min-height:300px;color:var(--muted)}
 .spinner{width:44px;height:44px;border:3px solid rgba(10,152,209,.15);border-top-color:var(--p);border-radius:50%;animation:spin .8s linear infinite}

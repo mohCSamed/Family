@@ -363,7 +363,7 @@
 <!-- ====== FIREBASE + LOGIC ====== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp }
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp, deleteDoc, doc }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
@@ -457,6 +457,7 @@ window.showingFavOnly = false;
 window.currentMediaType = 'photo'; // 'photo' or 'video'
 window.currentDadMediaType = 'photo';
 window.lightboxAutoTimer = null;
+window.isAdminUnlocked = false;
 const PWDS = { Yoma:'رقاصه', Janjan:'السيده', Mo:'يا ابن الكلب', Domdom:'اخر العنقود', Fozda2a:'الحته', Dad:'FAMILY2026' };
 
 // ── NAVIGATION ────────────────────────────────────────────────
@@ -619,7 +620,7 @@ async function loadMemories() {
   try {
     if (useFirebase) {
       const snap = await getDocs(query(collection(db,'members',window.currentMember,'memories'), orderBy('timestamp','desc')));
-      snap.forEach(d => { const dd=d.data(); mems.push({imageURL:dd.imageURL, caption:dd.caption, date:dd.timestamp?.toDate?.()?.toLocaleDateString('ar-EG')||'', type:dd.type||'image'}); });
+      snap.forEach(d => { const dd=d.data(); mems.push({docId:d.id, imageURL:dd.imageURL, caption:dd.caption, date:dd.timestamp?.toDate?.()?.toLocaleDateString('ar-EG')||'', type:dd.type||'image'}); });
     } else { mems = lsLoad(window.currentMember); }
   } catch(e) { mems = lsLoad(window.currentMember); }
   window.memories = mems;
@@ -633,7 +634,7 @@ async function loadDadPhotos() {
   try {
     if (useFirebase) {
       const snap = await getDocs(query(collection(db,'members','Dad','memories'), orderBy('timestamp','desc')));
-      snap.forEach(d => { const dd=d.data(); mems.push({imageURL:dd.imageURL, caption:dd.caption, date:'', type:dd.type||'image'}); });
+      snap.forEach(d => { const dd=d.data(); mems.push({docId:d.id, imageURL:dd.imageURL, caption:dd.caption, date:'', type:dd.type||'image'}); });
     } else { mems = lsLoad('Dad'); }
   } catch(e) { mems = lsLoad('Dad'); }
   window.memories = mems;
@@ -642,6 +643,7 @@ async function loadDadPhotos() {
 
 function renderGrid(mems, grid, countId, unit) {
   const favs = window.currentMember ? getFavs(window.currentMember) : [];
+  const canDelete = window.currentMember === 'Dad' || window.isAdminUnlocked;
   let displayMems = mems;
   if (window.showingFavOnly) displayMems = mems.filter(m => favs.includes(m.imageURL));
   document.getElementById(countId).textContent = displayMems.length + ' ' + unit;
@@ -664,16 +666,45 @@ function renderGrid(mems, grid, countId, unit) {
           : `<img src="${mem.imageURL}" alt="${mem.caption||''}" loading="lazy" onload="this.classList.add('loaded')">`}
         <div class="memory-overlay"><span>${isVideo?'▶':'🔍'}</span></div>
         <button class="fav-star ${isFav?'starred':''}" data-idx="${realIdx}" onclick="toggleFav(event,${realIdx})">⭐</button>
+        ${canDelete ? `<button class="delete-star" onclick="deleteMemory(event,${realIdx})" title="حذف">🗑</button>` : ''}
       </div>
       ${mem.caption?`<div class="memory-caption">${mem.caption}</div>`:''}
       ${mem.date?`<div class="memory-date">${mem.date}</div>`:''}
     `;
     c.querySelector('.memory-img-wrap').addEventListener('click', (e) => {
-      if (!e.target.classList.contains('fav-star')) { playCardSound(); openLightbox(realIdx); }
+      if (!e.target.classList.contains('fav-star') && !e.target.classList.contains('delete-star')) { playCardSound(); openLightbox(realIdx); }
     });
     grid.appendChild(c);
   });
 }
+
+window.deleteMemory = async (e, idx) => {
+  e.stopPropagation();
+  if (!(window.currentMember === 'Dad' || window.isAdminUnlocked)) {
+    showToast('🔒 الحذف للأدمن فقط');
+    return;
+  }
+  const target = window.memories[idx];
+  if (!target) return;
+  if (!confirm('متأكد إنك عايز تحذف الذكرى دي؟')) return;
+  try {
+    if (useFirebase && target.docId) {
+      await deleteDoc(doc(db, 'members', window.currentMember, 'memories', target.docId));
+    } else {
+      const arr = lsLoad(window.currentMember);
+      arr.splice(idx, 1);
+      lsSave(window.currentMember, arr);
+    }
+    window.memories.splice(idx, 1);
+    const gridId = window.currentMember === 'Dad' ? 'dadGrid' : 'memoriesGrid';
+    const countId = window.currentMember === 'Dad' ? 'dadPhotoCount' : 'memCount';
+    const unit = window.currentMember === 'Dad' ? 'صور' : 'ذكريات';
+    renderGrid(window.memories, document.getElementById(gridId), countId, unit);
+    showToast('🗑 تم حذف الذكرى');
+  } catch (err) {
+    showToast('❌ حصل خطأ أثناء الحذف');
+  }
+};
 
 // ── SAVE IMAGE / VIDEO ────────────────────────────────────────
 async function saveMedia(member, file, caption, type) {
@@ -847,8 +878,15 @@ document.addEventListener('keydown', e => {
   window.secretBuf += e.key.toUpperCase();
   if(window.secretBuf.length>10) window.secretBuf=window.secretBuf.slice(-10);
   if(window.secretBuf==='FAMILY2026') {
+    window.isAdminUnlocked = true;
     if(document.getElementById('screen-memories').classList.contains('active'))
       document.getElementById('addMemoryBtn').classList.remove('hidden');
+    if (document.getElementById('screen-memories').classList.contains('active')) {
+      renderGrid(window.memories, document.getElementById('memoriesGrid'), 'memCount', 'ذكريات');
+    }
+    if (document.getElementById('screen-dad').classList.contains('active')) {
+      renderGrid(window.memories, document.getElementById('dadGrid'), 'dadPhotoCount', 'صور');
+    }
     showToast('🔓 Admin mode unlocked!'); burstHearts(25); launchConfetti(150); window.secretBuf='';
   }
 });
