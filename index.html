@@ -285,7 +285,15 @@
       <video id="mediaVideo" class="hidden preview-video" controls></video>
     </div>
     <button type="button" class="multi-upload-btn" onclick="document.getElementById('multiMediaInput').click()">🖼️ إضافة حتى 30 صورة مرة واحدة</button>
-    <div class="multi-upload-list hidden" id="multiCaptionList"></div>
+    <div class="multi-upload-panel hidden" id="multiUploadPanel">
+      <div class="multi-upload-head">
+        <span id="multiCountLabel">0 صورة</span>
+        <button type="button" class="multi-clear-btn" onclick="clearMultiSelect(false)">مسح الكل</button>
+      </div>
+      <input id="multiBulkCaption" class="multi-caption-input" placeholder="تعليق موحد لكل الصور (اختياري)">
+      <button type="button" class="multi-apply-btn" onclick="applyBulkCaption(false)">تطبيق على الكل</button>
+      <div class="multi-upload-list" id="multiCaptionList"></div>
+    </div>
     <textarea id="captionInput" placeholder="اكتب تعليق للذكرى دي... 💭" class="caption-input" rows="3"></textarea>
     <button onclick="saveMemory()" class="btn-primary btn-save" id="saveBtn">حفظ الذكرى ❤️</button>
   </div>
@@ -312,7 +320,15 @@
       <video id="dadMediaVideo" class="hidden preview-video" controls></video>
     </div>
     <button type="button" class="multi-upload-btn" onclick="document.getElementById('dadMultiMediaInput').click()">🖼️ إضافة حتى 30 صورة مرة واحدة</button>
-    <div class="multi-upload-list hidden" id="dadMultiCaptionList"></div>
+    <div class="multi-upload-panel hidden" id="dadMultiUploadPanel">
+      <div class="multi-upload-head">
+        <span id="dadMultiCountLabel">0 صورة</span>
+        <button type="button" class="multi-clear-btn" onclick="clearMultiSelect(true)">مسح الكل</button>
+      </div>
+      <input id="dadMultiBulkCaption" class="multi-caption-input" placeholder="تعليق موحد لكل الصور (اختياري)">
+      <button type="button" class="multi-apply-btn" onclick="applyBulkCaption(true)">تطبيق على الكل</button>
+      <div class="multi-upload-list" id="dadMultiCaptionList"></div>
+    </div>
     <textarea id="dadCaptionInput" placeholder="اكتب تعليق... 💭" class="caption-input" rows="3"></textarea>
     <button onclick="saveDadPhoto()" class="btn-primary btn-save" id="dadSaveBtn">حفظ ❤️</button>
   </div>
@@ -780,18 +796,32 @@ function closeModal(id) {
 
 function clearMultiSelect(isDad) {
   if (isDad) {
+    window.multiDadUploadFiles.forEach(item => { if (item?.previewUrl) URL.revokeObjectURL(item.previewUrl); });
     window.multiDadUploadFiles = [];
     const input = document.getElementById('dadMultiMediaInput');
     const list = document.getElementById('dadMultiCaptionList');
+    const panel = document.getElementById('dadMultiUploadPanel');
+    const bulk = document.getElementById('dadMultiBulkCaption');
+    const count = document.getElementById('dadMultiCountLabel');
     if (input) input.value = '';
-    if (list) { list.innerHTML = ''; list.classList.add('hidden'); }
+    if (list) list.innerHTML = '';
+    if (panel) panel.classList.add('hidden');
+    if (bulk) bulk.value = '';
+    if (count) count.textContent = '0 صورة';
     return;
   }
+  window.multiUploadFiles.forEach(item => { if (item?.previewUrl) URL.revokeObjectURL(item.previewUrl); });
   window.multiUploadFiles = [];
   const input = document.getElementById('multiMediaInput');
   const list = document.getElementById('multiCaptionList');
+  const panel = document.getElementById('multiUploadPanel');
+  const bulk = document.getElementById('multiBulkCaption');
+  const count = document.getElementById('multiCountLabel');
   if (input) input.value = '';
-  if (list) { list.innerHTML = ''; list.classList.add('hidden'); }
+  if (list) list.innerHTML = '';
+  if (panel) panel.classList.add('hidden');
+  if (bulk) bulk.value = '';
+  if (count) count.textContent = '0 صورة';
 }
 
 window.handleMultiSelect = (e, isDad) => {
@@ -800,7 +830,7 @@ window.handleMultiSelect = (e, isDad) => {
   if (picked.length > 30) {
     showToast('⚠️ الحد الأقصى 30 صورة مرة واحدة');
   }
-  const files = picked.slice(0, 30);
+  const files = picked.slice(0, 30).map(f => ({ file: f, previewUrl: URL.createObjectURL(f) }));
   if (isDad) window.multiDadUploadFiles = files;
   else window.multiUploadFiles = files;
   renderMultiCaptionInputs(isDad);
@@ -809,20 +839,37 @@ window.handleMultiSelect = (e, isDad) => {
 function renderMultiCaptionInputs(isDad) {
   const files = isDad ? window.multiDadUploadFiles : window.multiUploadFiles;
   const list = document.getElementById(isDad ? 'dadMultiCaptionList' : 'multiCaptionList');
+  const panel = document.getElementById(isDad ? 'dadMultiUploadPanel' : 'multiUploadPanel');
+  const count = document.getElementById(isDad ? 'dadMultiCountLabel' : 'multiCountLabel');
   if (!list) return;
   if (!files.length) {
     list.innerHTML = '';
-    list.classList.add('hidden');
+    if (panel) panel.classList.add('hidden');
+    if (count) count.textContent = '0 صورة';
     return;
   }
-  list.classList.remove('hidden');
+  if (panel) panel.classList.remove('hidden');
+  if (count) count.textContent = `${files.length} صورة`;
   list.innerHTML = files.map((f, i) => `
     <div class="multi-item">
-      <span class="multi-item-name">${f.name}</span>
-      <input class="multi-caption-input" data-idx="${i}" placeholder="اكتب تعليق للصورة...">
+      <div class="multi-item-head">
+        <span class="multi-item-index">#${i + 1}</span>
+        <span class="multi-item-name">${f.file.name}</span>
+      </div>
+      <img class="multi-item-thumb" src="${f.previewUrl}" alt="preview ${i + 1}">
+      <input class="multi-caption-input" data-idx="${i}" placeholder="تعليق الصورة رقم ${i + 1}">
     </div>
   `).join('');
 }
+
+window.applyBulkCaption = (isDad) => {
+  const bulk = document.getElementById(isDad ? 'dadMultiBulkCaption' : 'multiBulkCaption');
+  if (!bulk) return;
+  const v = bulk.value.trim();
+  const listSelector = isDad ? '#dadMultiCaptionList .multi-caption-input' : '#multiCaptionList .multi-caption-input';
+  const inputs = Array.from(document.querySelectorAll(listSelector));
+  inputs.forEach(inp => { inp.value = v; });
+};
 
 window.previewMedia = (e, previewId, phId, videoId) => {
   const f = e.target.files[0]; if (!f) return;
@@ -856,7 +903,7 @@ window.saveMemory = async () => {
     try {
       const inputs = Array.from(document.querySelectorAll('#multiCaptionList .multi-caption-input'));
       for (let i = 0; i < window.multiUploadFiles.length; i++) {
-        const f = window.multiUploadFiles[i];
+        const f = window.multiUploadFiles[i].file;
         const cap = (inputs[i]?.value || '').trim();
         await saveMedia(window.currentMember, f, cap, 'image');
       }
@@ -895,7 +942,7 @@ window.saveDadPhoto = async () => {
     try {
       const inputs = Array.from(document.querySelectorAll('#dadMultiCaptionList .multi-caption-input'));
       for (let i = 0; i < window.multiDadUploadFiles.length; i++) {
-        const f = window.multiDadUploadFiles[i];
+        const f = window.multiDadUploadFiles[i].file;
         const cap = (inputs[i]?.value || '').trim();
         await saveMedia('Dad', f, cap, 'image');
       }
