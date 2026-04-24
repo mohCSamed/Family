@@ -275,6 +275,7 @@
     </div>
     <div class="upload-area" id="uploadArea" onclick="document.getElementById('mediaInput').click()">
       <input type="file" id="mediaInput" accept="image/*" onchange="previewMedia(event,'mediaPreview','mediaPH','mediaVideo')" hidden>
+      <input type="file" id="multiMediaInput" accept="image/*" multiple onchange="handleMultiSelect(event, false)" hidden>
       <div id="mediaPH" class="upload-placeholder">
         <div class="upload-icon">📷</div>
         <p>اضغط لاختيار صورة</p>
@@ -283,6 +284,8 @@
       <img id="mediaPreview" class="hidden preview-img" alt="preview">
       <video id="mediaVideo" class="hidden preview-video" controls></video>
     </div>
+    <button type="button" class="multi-upload-btn" onclick="document.getElementById('multiMediaInput').click()">🖼️ إضافة حتى 30 صورة مرة واحدة</button>
+    <div class="multi-upload-list hidden" id="multiCaptionList"></div>
     <textarea id="captionInput" placeholder="اكتب تعليق للذكرى دي... 💭" class="caption-input" rows="3"></textarea>
     <button onclick="saveMemory()" class="btn-primary btn-save" id="saveBtn">حفظ الذكرى ❤️</button>
   </div>
@@ -299,6 +302,7 @@
     </div>
     <div class="upload-area" onclick="document.getElementById('dadMediaInput').click()">
       <input type="file" id="dadMediaInput" accept="image/*" onchange="previewMedia(event,'dadMediaPreview','dadMediaPH','dadMediaVideo')" hidden>
+      <input type="file" id="dadMultiMediaInput" accept="image/*" multiple onchange="handleMultiSelect(event, true)" hidden>
       <div id="dadMediaPH" class="upload-placeholder">
         <div class="upload-icon">👨‍👧‍👦</div>
         <p>اضغط لاختيار صورة بابا</p>
@@ -307,6 +311,8 @@
       <img id="dadMediaPreview" class="hidden preview-img" alt="preview">
       <video id="dadMediaVideo" class="hidden preview-video" controls></video>
     </div>
+    <button type="button" class="multi-upload-btn" onclick="document.getElementById('dadMultiMediaInput').click()">🖼️ إضافة حتى 30 صورة مرة واحدة</button>
+    <div class="multi-upload-list hidden" id="dadMultiCaptionList"></div>
     <textarea id="dadCaptionInput" placeholder="اكتب تعليق... 💭" class="caption-input" rows="3"></textarea>
     <button onclick="saveDadPhoto()" class="btn-primary btn-save" id="dadSaveBtn">حفظ ❤️</button>
   </div>
@@ -458,6 +464,8 @@ window.currentMediaType = 'photo'; // 'photo' or 'video'
 window.currentDadMediaType = 'photo';
 window.lightboxAutoTimer = null;
 window.isAdminUnlocked = false;
+window.multiUploadFiles = [];
+window.multiDadUploadFiles = [];
 const PWDS = { Yoma:'رقاصه', Janjan:'السيده', Mo:'يا ابن الكلب', Domdom:'اخر العنقود', Fozda2a:'الحته', Dad:'FAMILY2026' };
 
 // ── NAVIGATION ────────────────────────────────────────────────
@@ -758,9 +766,63 @@ function openModal(modalId, inputId, previewId, phId, captionId, videoId) {
   document.getElementById(inputId).value = '';
   document.getElementById(modalId).classList.remove('hidden');
   document.body.style.overflow = 'hidden';
+  if (modalId === 'addModal') clearMultiSelect(false);
+  if (modalId === 'dadModal') clearMultiSelect(true);
   playSfx('open');
 }
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.body.style.overflow=''; playSfx('close'); }
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+  document.body.style.overflow='';
+  if (id === 'addModal') clearMultiSelect(false);
+  if (id === 'dadModal') clearMultiSelect(true);
+  playSfx('close');
+}
+
+function clearMultiSelect(isDad) {
+  if (isDad) {
+    window.multiDadUploadFiles = [];
+    const input = document.getElementById('dadMultiMediaInput');
+    const list = document.getElementById('dadMultiCaptionList');
+    if (input) input.value = '';
+    if (list) { list.innerHTML = ''; list.classList.add('hidden'); }
+    return;
+  }
+  window.multiUploadFiles = [];
+  const input = document.getElementById('multiMediaInput');
+  const list = document.getElementById('multiCaptionList');
+  if (input) input.value = '';
+  if (list) { list.innerHTML = ''; list.classList.add('hidden'); }
+}
+
+window.handleMultiSelect = (e, isDad) => {
+  const picked = Array.from(e.target.files || []).filter(f => f.type.startsWith('image/'));
+  if (!picked.length) return;
+  if (picked.length > 30) {
+    showToast('⚠️ الحد الأقصى 30 صورة مرة واحدة');
+  }
+  const files = picked.slice(0, 30);
+  if (isDad) window.multiDadUploadFiles = files;
+  else window.multiUploadFiles = files;
+  renderMultiCaptionInputs(isDad);
+};
+
+function renderMultiCaptionInputs(isDad) {
+  const files = isDad ? window.multiDadUploadFiles : window.multiUploadFiles;
+  const list = document.getElementById(isDad ? 'dadMultiCaptionList' : 'multiCaptionList');
+  if (!list) return;
+  if (!files.length) {
+    list.innerHTML = '';
+    list.classList.add('hidden');
+    return;
+  }
+  list.classList.remove('hidden');
+  list.innerHTML = files.map((f, i) => `
+    <div class="multi-item">
+      <span class="multi-item-name">${f.name}</span>
+      <input class="multi-caption-input" data-idx="${i}" placeholder="اكتب تعليق للصورة...">
+    </div>
+  `).join('');
+}
 
 window.previewMedia = (e, previewId, phId, videoId) => {
   const f = e.target.files[0]; if (!f) return;
@@ -786,6 +848,31 @@ window.previewMedia = (e, previewId, phId, videoId) => {
 let saving = false;
 window.saveMemory = async () => {
   if (saving) return;
+  if (window.multiUploadFiles.length) {
+    saving = true;
+    const btn = document.getElementById('saveBtn');
+    btn.textContent = 'جاري حفظ الصور... ⏳';
+    btn.disabled = true;
+    try {
+      const inputs = Array.from(document.querySelectorAll('#multiCaptionList .multi-caption-input'));
+      for (let i = 0; i < window.multiUploadFiles.length; i++) {
+        const f = window.multiUploadFiles[i];
+        const cap = (inputs[i]?.value || '').trim();
+        await saveMedia(window.currentMember, f, cap, 'image');
+      }
+      closeAddModal();
+      loadMemories();
+      showToast('✅ تم حفظ الصور بنجاح');
+      burstHearts(16);
+    } catch (e) {
+      showToast('❌ حصل خطأ أثناء حفظ الصور');
+    } finally {
+      saving = false;
+      btn.textContent = 'حفظ الذكرى ❤️';
+      btn.disabled = false;
+    }
+    return;
+  }
   const file = document.getElementById('mediaInput').files[0];
   const cap  = document.getElementById('captionInput').value.trim();
   if (!file) { showToast('⚠️ اختار ملف أول'); return; }
@@ -800,6 +887,31 @@ window.saveMemory = async () => {
 let savingDad = false;
 window.saveDadPhoto = async () => {
   if (savingDad) return;
+  if (window.multiDadUploadFiles.length) {
+    savingDad = true;
+    const btn = document.getElementById('dadSaveBtn');
+    btn.textContent = 'جاري حفظ الصور... ⏳';
+    btn.disabled = true;
+    try {
+      const inputs = Array.from(document.querySelectorAll('#dadMultiCaptionList .multi-caption-input'));
+      for (let i = 0; i < window.multiDadUploadFiles.length; i++) {
+        const f = window.multiDadUploadFiles[i];
+        const cap = (inputs[i]?.value || '').trim();
+        await saveMedia('Dad', f, cap, 'image');
+      }
+      closeDadModal();
+      loadDadPhotos();
+      showToast('✅ تم حفظ صور بابا');
+      burstHearts(16);
+    } catch (e) {
+      showToast('❌ حصل خطأ أثناء حفظ الصور');
+    } finally {
+      savingDad = false;
+      btn.textContent = 'حفظ ❤️';
+      btn.disabled = false;
+    }
+    return;
+  }
   const file = document.getElementById('dadMediaInput').files[0];
   const cap  = document.getElementById('dadCaptionInput').value.trim();
   if (!file) { showToast('⚠️ اختار ملف أول'); return; }
@@ -826,18 +938,28 @@ function updateLB() {
   const m = window.memories[window.lightboxIndex]; if(!m) return;
   const img = document.getElementById('lightboxImg');
   const vid = document.getElementById('lightboxVid');
+  const capEl = document.getElementById('lightboxCaption');
+  const dateEl = document.getElementById('lightboxDate');
   const favBtn = document.getElementById('lightboxFavBtn');
   const favs = window.currentMember ? getFavs(window.currentMember) : [];
   favBtn.classList.toggle('starred', favs.includes(m.imageURL));
+  if (capEl) { capEl.style.opacity='0'; capEl.style.transform='translateY(6px)'; }
+  if (dateEl) { dateEl.style.opacity='0'; dateEl.style.transform='translateY(6px)'; }
   if (m.type === 'video') {
     img.style.display='none'; vid.style.display='block';
+    vid.classList.remove('slide-transition'); void vid.offsetWidth; vid.classList.add('slide-transition');
     vid.src = m.imageURL;
   } else {
     vid.style.display='none'; vid.src=''; img.style.display='block';
+    img.classList.remove('slide-transition'); void img.offsetWidth; img.classList.add('slide-transition');
     img.style.opacity=0; img.src=m.imageURL; img.onload=()=>img.style.opacity=1;
   }
-  document.getElementById('lightboxCaption').textContent = m.caption||'';
-  document.getElementById('lightboxDate').textContent    = m.date||'';
+  capEl.textContent = m.caption||'';
+  dateEl.textContent = m.date||'';
+  setTimeout(() => {
+    if (capEl) { capEl.style.opacity='1'; capEl.style.transform='translateY(0)'; }
+    if (dateEl) { dateEl.style.opacity='1'; dateEl.style.transform='translateY(0)'; }
+  }, 120);
 }
 window.closeLightbox  = () => {
   const vid = document.getElementById('lightboxVid');

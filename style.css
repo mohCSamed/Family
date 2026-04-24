@@ -477,6 +477,54 @@ button{font-family:var(--font);cursor:pointer}
 .caption-input:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(10,152,209,.12)}
 .caption-input::placeholder{color:var(--muted)}
 .btn-save{width:100%;justify-content:center;border-radius:var(--r2);padding:16px;font-size:1rem}
+.multi-upload-btn{
+  width:100%;
+  margin:-6px 0 12px;
+  border:none;
+  border-radius:14px;
+  padding:11px 14px;
+  font-family:var(--font);
+  font-size:.9rem;
+  font-weight:700;
+  color:#fff;
+  background:linear-gradient(135deg,#5b8dff,#7a5cff);
+  box-shadow:0 6px 20px rgba(90,110,255,.35);
+}
+.multi-upload-list{
+  max-height:210px;
+  overflow:auto;
+  margin-bottom:14px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.multi-item{
+  background:rgba(10,152,209,.06);
+  border:1px solid rgba(10,152,209,.14);
+  border-radius:12px;
+  padding:8px;
+}
+.multi-item-name{
+  display:block;
+  font-size:.72rem;
+  color:var(--muted);
+  margin-bottom:6px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  direction:ltr;
+  text-align:left;
+}
+.multi-caption-input{
+  width:100%;
+  border:1px solid rgba(10,152,209,.18);
+  border-radius:10px;
+  padding:8px 10px;
+  font-family:var(--font);
+  font-size:.85rem;
+  background:var(--bg);
+  color:var(--text);
+}
 
 /* ═══ LIGHTBOX ═══ */
 .lightbox{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.95);display:flex;align-items:center;justify-content:center;animation:fadeOverlay .3s ease}
@@ -488,6 +536,18 @@ button{font-family:var(--font);cursor:pointer}
 .lightbox-inner{text-align:center;padding:60px 80px 40px;max-width:90vw}
 #lightboxImg{max-height:85vh;max-width:95vw;border-radius:18px;object-fit:contain;transition:opacity .35s ease;box-shadow:0 24px 70px rgba(0,0,0,.55)}
 #lightboxVid{max-height:85vh;max-width:95vw;border-radius:16px}
+#lightboxImg.slide-transition,
+#lightboxVid.slide-transition{
+  animation:fadeSlideSoft .9s ease;
+}
+#lightboxCaption,
+#lightboxDate{
+  transition:opacity .35s ease, transform .35s ease;
+}
+@keyframes fadeSlideSoft{
+  from{opacity:0;transform:scale(1.03)}
+  to{opacity:1;transform:scale(1)}
+}
 #lightboxCaption{color:#fff;font-size:1rem;margin-top:20px;line-height:1.7;font-weight:500}
 #lightboxDate{color:rgba(255,255,255,.38);font-size:.76rem;display:block;margin-top:8px}
 .lightbox-fav-btn{display:inline-block;margin-top:14px;font-size:1.6rem;cursor:pointer;filter:grayscale(1);transition:all .28s ease;user-select:none}
