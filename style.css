@@ -116,21 +116,28 @@ body.dark #screen-loading {
 .gate-animated-bg {
   position:absolute; inset:0; z-index:0;
   background:radial-gradient(ellipse at 20% 10%, #d6f0fb 0%, #fce8f3 40%, #fffaf5 80%);
-  animation:bgColorShift 8s ease-in-out infinite alternate;
+  animation:bgColorShift 10s ease-in-out infinite;
 }
 @keyframes bgColorShift {
   0%   { background:radial-gradient(ellipse at 20% 10%, #d6f0fb 0%, #fce8f3 40%, #fffaf5 80%); }
+  17%  { background:radial-gradient(ellipse at 75% 20%, #e8f8ff 0%, #ffe0f0 40%, #fff5e0 80%); }
   33%  { background:radial-gradient(ellipse at 70% 80%, #fce8f3 0%, #e8f8ff 40%, #fff8f0 80%); }
+  50%  { background:radial-gradient(ellipse at 10% 70%, #f0e8ff 0%, #e8fff0 40%, #fff0e8 80%); }
   66%  { background:radial-gradient(ellipse at 50% 50%, #ffe8f5 0%, #e8f0ff 40%, #f5ffe8 80%); }
-  100% { background:radial-gradient(ellipse at 20% 10%, #f0fff0 0%, #fff0e8 40%, #e8f0ff 80%); }
+  83%  { background:radial-gradient(ellipse at 80% 30%, #ffeee8 0%, #e8f5ff 40%, #f5e8ff 80%); }
+  100% { background:radial-gradient(ellipse at 20% 10%, #d6f0fb 0%, #fce8f3 40%, #fffaf5 80%); }
 }
 body.dark .gate-animated-bg {
-  animation:bgColorShiftDark 8s ease-in-out infinite alternate;
+  animation:bgColorShiftDark 10s ease-in-out infinite;
 }
 @keyframes bgColorShiftDark {
-  0%   { background:radial-gradient(ellipse at 20% 10%,#091a2e 0%,#1a0d1e 40%,#0a1520 80%); }
-  50%  { background:radial-gradient(ellipse at 70% 80%,#0d1a2e 0%,#1a0a20 40%,#0a1830 80%); }
-  100% { background:radial-gradient(ellipse at 50% 20%,#0a1428 0%,#1e0d2a 40%,#081018 80%); }
+  0%   { background:radial-gradient(ellipse at 20% 10%, #0a1a2e 0%, #1a0a2e 40%, #0a1a1a 80%); }
+  16%  { background:radial-gradient(ellipse at 75% 20%, #0d1f3a 0%, #2a0a1a 40%, #0a200d 80%); }
+  33%  { background:radial-gradient(ellipse at 50% 80%, #1a0a2e 0%, #0a1a30 40%, #2a1a0a 80%); }
+  50%  { background:radial-gradient(ellipse at 10% 60%, #0a2020 0%, #1e0a2a 40%, #0a0a2e 80%); }
+  66%  { background:radial-gradient(ellipse at 80% 50%, #200a1a 0%, #0a1e20 40%, #1a200a 80%); }
+  83%  { background:radial-gradient(ellipse at 40% 10%, #0a1030 0%, #2a0a20 40%, #0a2010 80%); }
+  100% { background:radial-gradient(ellipse at 20% 10%, #0a1a2e 0%, #1a0a2e 40%, #0a1a1a 80%); }
 }
 
 .gate-bg-orb { position:absolute; border-radius:50%; filter:blur(70px); pointer-events:none; animation:orbFloat 8s ease-in-out infinite; z-index:1; }
