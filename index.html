@@ -285,10 +285,15 @@
       <video id="mediaVideo" class="hidden preview-video" controls></video>
     </div>
     <button type="button" class="multi-upload-btn" onclick="document.getElementById('multiMediaInput').click()">🖼️ إضافة حتى 30 صورة مرة واحدة</button>
+    <p class="multi-hint">بعد ما تفتح نافذة الصور، تقدر تختار الكل مرة واحدة (Ctrl + A) ثم Open.</p>
     <div class="multi-upload-panel hidden" id="multiUploadPanel">
       <div class="multi-upload-head">
         <span id="multiCountLabel">0 صورة</span>
         <button type="button" class="multi-clear-btn" onclick="clearMultiSelect(false)">مسح الكل</button>
+      </div>
+      <div class="multi-count-picker">
+        <label for="multiTargetCount">عدد الصور المطلوب:</label>
+        <input id="multiTargetCount" type="number" min="1" max="30" value="30">
       </div>
       <input id="multiBulkCaption" class="multi-caption-input" placeholder="تعليق موحد لكل الصور (اختياري)">
       <button type="button" class="multi-apply-btn" onclick="applyBulkCaption(false)">تطبيق على الكل</button>
@@ -320,10 +325,15 @@
       <video id="dadMediaVideo" class="hidden preview-video" controls></video>
     </div>
     <button type="button" class="multi-upload-btn" onclick="document.getElementById('dadMultiMediaInput').click()">🖼️ إضافة حتى 30 صورة مرة واحدة</button>
+    <p class="multi-hint">بعد ما تفتح نافذة الصور، تقدر تختار الكل مرة واحدة (Ctrl + A) ثم Open.</p>
     <div class="multi-upload-panel hidden" id="dadMultiUploadPanel">
       <div class="multi-upload-head">
         <span id="dadMultiCountLabel">0 صورة</span>
         <button type="button" class="multi-clear-btn" onclick="clearMultiSelect(true)">مسح الكل</button>
+      </div>
+      <div class="multi-count-picker">
+        <label for="dadMultiTargetCount">عدد الصور المطلوب:</label>
+        <input id="dadMultiTargetCount" type="number" min="1" max="30" value="30">
       </div>
       <input id="dadMultiBulkCaption" class="multi-caption-input" placeholder="تعليق موحد لكل الصور (اختياري)">
       <button type="button" class="multi-apply-btn" onclick="applyBulkCaption(true)">تطبيق على الكل</button>
@@ -390,18 +400,18 @@ import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimest
 import { getStorage, ref, uploadBytes, getDownloadURL }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-// ── FIREBASE CONFIG ── replace with real values ──────────────
+// ── FIREBASE CONFIG ────────────────────────────────────────────
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCmfQhMuxy-8YB4UYP2sINigaIqy_o5GHU",
+  authDomain: "family-a18fa.firebaseapp.com",
+  projectId: "family-a18fa",
+  storageBucket: "family-a18fa.firebasestorage.app",
+  messagingSenderId: "101396397626",
+  appId: "1:101396397626:web:dfb8160a04290c045fbf03"
 };
 let db, storage, useFirebase = false;
 try {
-  if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+  if (firebaseConfig.apiKey && firebaseConfig.projectId) {
     const fbApp = initializeApp(firebaseConfig);
     db = getFirestore(fbApp);
     storage = getStorage(fbApp);
@@ -803,9 +813,11 @@ function clearMultiSelect(isDad) {
     const panel = document.getElementById('dadMultiUploadPanel');
     const bulk = document.getElementById('dadMultiBulkCaption');
     const count = document.getElementById('dadMultiCountLabel');
+    const modal = document.querySelector('#dadModal .modal');
     if (input) input.value = '';
     if (list) list.innerHTML = '';
     if (panel) panel.classList.add('hidden');
+    if (modal) modal.classList.remove('multi-open');
     if (bulk) bulk.value = '';
     if (count) count.textContent = '0 صورة';
     return;
@@ -817,9 +829,11 @@ function clearMultiSelect(isDad) {
   const panel = document.getElementById('multiUploadPanel');
   const bulk = document.getElementById('multiBulkCaption');
   const count = document.getElementById('multiCountLabel');
+  const modal = document.querySelector('#addModal .modal');
   if (input) input.value = '';
   if (list) list.innerHTML = '';
   if (panel) panel.classList.add('hidden');
+  if (modal) modal.classList.remove('multi-open');
   if (bulk) bulk.value = '';
   if (count) count.textContent = '0 صورة';
 }
@@ -827,10 +841,13 @@ function clearMultiSelect(isDad) {
 window.handleMultiSelect = (e, isDad) => {
   const picked = Array.from(e.target.files || []).filter(f => f.type.startsWith('image/'));
   if (!picked.length) return;
-  if (picked.length > 30) {
-    showToast('⚠️ الحد الأقصى 30 صورة مرة واحدة');
+  const targetInput = document.getElementById(isDad ? 'dadMultiTargetCount' : 'multiTargetCount');
+  const targetCount = Math.max(1, Math.min(30, Number(targetInput?.value || 30)));
+  if (targetInput) targetInput.value = String(targetCount);
+  if (picked.length > targetCount) {
+    showToast(`⚠️ تم اختيار أول ${targetCount} صورة حسب العدد المطلوب`);
   }
-  const files = picked.slice(0, 30).map(f => ({ file: f, previewUrl: URL.createObjectURL(f) }));
+  const files = picked.slice(0, targetCount).map(f => ({ file: f, previewUrl: URL.createObjectURL(f) }));
   if (isDad) window.multiDadUploadFiles = files;
   else window.multiUploadFiles = files;
   renderMultiCaptionInputs(isDad);
@@ -841,14 +858,17 @@ function renderMultiCaptionInputs(isDad) {
   const list = document.getElementById(isDad ? 'dadMultiCaptionList' : 'multiCaptionList');
   const panel = document.getElementById(isDad ? 'dadMultiUploadPanel' : 'multiUploadPanel');
   const count = document.getElementById(isDad ? 'dadMultiCountLabel' : 'multiCountLabel');
+  const modal = document.querySelector(isDad ? '#dadModal .modal' : '#addModal .modal');
   if (!list) return;
   if (!files.length) {
     list.innerHTML = '';
     if (panel) panel.classList.add('hidden');
+    if (modal) modal.classList.remove('multi-open');
     if (count) count.textContent = '0 صورة';
     return;
   }
   if (panel) panel.classList.remove('hidden');
+  if (modal) modal.classList.add('multi-open');
   if (count) count.textContent = `${files.length} صورة`;
   list.innerHTML = files.map((f, i) => `
     <div class="multi-item">
@@ -857,7 +877,7 @@ function renderMultiCaptionInputs(isDad) {
         <span class="multi-item-name">${f.file.name}</span>
       </div>
       <img class="multi-item-thumb" src="${f.previewUrl}" alt="preview ${i + 1}">
-      <input class="multi-caption-input" data-idx="${i}" placeholder="تعليق الصورة رقم ${i + 1}">
+      <textarea class="multi-caption-input multi-caption-textarea" data-idx="${i}" rows="2" placeholder="اكتب تعليق الصورة رقم ${i + 1}"></textarea>
     </div>
   `).join('');
 }

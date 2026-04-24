@@ -460,6 +460,7 @@ button{font-family:var(--font);cursor:pointer}
 .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeOverlay .32s ease}
 @keyframes fadeOverlay{from{opacity:0}to{opacity:1}}
 .modal{background:var(--card);border-radius:28px;padding:32px 28px;max-width:440px;width:100%;position:relative;box-shadow:0 36px 90px rgba(0,0,0,.25);animation:slideModal .42s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto}
+.modal.multi-open{max-width:min(1100px,96vw)}
 @keyframes slideModal{from{opacity:0;transform:translateY(50px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
 .modal-close{position:absolute;top:16px;right:16px;background:var(--bg);border:none;border-radius:50%;width:36px;height:36px;font-size:1rem;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all var(--t)}
 .modal-close:hover{background:rgba(255,107,157,.14);color:var(--acc);transform:rotate(90deg)}
@@ -490,11 +491,17 @@ button{font-family:var(--font);cursor:pointer}
   background:linear-gradient(135deg,#5b8dff,#7a5cff);
   box-shadow:0 6px 20px rgba(90,110,255,.35);
 }
+.multi-hint{
+  margin:-4px 0 10px;
+  font-size:.75rem;
+  color:var(--muted);
+  line-height:1.6;
+}
 .multi-upload-panel{
   background:rgba(10,152,209,.05);
   border:1px solid rgba(10,152,209,.16);
   border-radius:14px;
-  padding:10px;
+  padding:12px;
   margin-bottom:12px;
 }
 .multi-upload-head{
@@ -505,6 +512,25 @@ button{font-family:var(--font);cursor:pointer}
   color:var(--text);
   font-size:.84rem;
   font-weight:700;
+}
+.multi-count-picker{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+}
+.multi-count-picker label{
+  font-size:.8rem;
+  color:var(--muted);
+}
+.multi-count-picker input{
+  width:88px;
+  border:1px solid rgba(10,152,209,.25);
+  border-radius:10px;
+  padding:6px 8px;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
 }
 .multi-clear-btn,
 .multi-apply-btn{
@@ -518,18 +544,18 @@ button{font-family:var(--font);cursor:pointer}
 .multi-clear-btn{background:rgba(255,107,157,.16);color:#d94c7f}
 .multi-apply-btn{margin-top:7px;margin-bottom:8px;background:rgba(10,152,209,.15);color:var(--p);width:100%}
 .multi-upload-list{
-  max-height:180px;
-  overflow:auto;
+  max-height:none;
+  overflow:visible;
   margin-bottom:2px;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(165px,1fr));
+  gap:8px;
 }
 .multi-item{
   background:rgba(255,255,255,.03);
   border:1px solid rgba(10,152,209,.12);
   border-radius:10px;
-  padding:7px;
+  padding:8px;
 }
 .multi-item-head{
   display:flex;
@@ -557,7 +583,7 @@ button{font-family:var(--font);cursor:pointer}
 }
 .multi-item-thumb{
   width:100%;
-  max-height:120px;
+  height:110px;
   object-fit:cover;
   border-radius:8px;
   display:block;
@@ -573,6 +599,10 @@ button{font-family:var(--font);cursor:pointer}
   font-size:.85rem;
   background:var(--bg);
   color:var(--text);
+}
+.multi-caption-textarea{
+  resize:vertical;
+  min-height:58px;
 }
 
 /* ═══ LIGHTBOX ═══ */
@@ -683,6 +713,8 @@ button{font-family:var(--font);cursor:pointer}
   }
   .birthday-card{padding:24px 18px}
   .lightbox-inner{padding:56px 40px 28px}
+  .multi-upload-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .multi-item-thumb{height:82px}
 }
 
 
